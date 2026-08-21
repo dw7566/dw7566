@@ -46,14 +46,19 @@ dw7566@hanyang.ac.kr
 
 ## Selected Work
 
-| 프로젝트 | 영역 | 핵심 지표 |
-|---|---|---|
-| [Plasma Etch Virtual Metrology](https://github.com/dw7566/plasma-etch-virtual-metrology) | 가상계측 · 임베디드 | LOLO R² 0.855 · 실계측 76.1% 생략 · 미검출 0/67 |
-| [WaferSense](https://github.com/dw7566/wafersense) | 계측 신뢰성 · 공정능력 | 무효 12건 자동 격리 · 주입 검증 오탐·미탐 0 |
-| Apache6 Benchmark Dashboard 🔒 | NPU 추론 · 벤치마크 | NPU 추론 1.4 ms · 상주 런타임 20.9× |
-| [Embedded SEM Defect AI](https://github.com/dw7566/embedded-sem-defect-ai) | 엣지 AI · 결함 검사 | 분류+분할 단일 추론 · GPU 171.9 ms |
-| [picqa](https://github.com/dw7566/picqa) | 실리콘 포토닉스 분석 | 709 XML end-to-end · 테스트 47건 · CI |
-| [Zonal Architecture Kit](https://github.com/dw7566/zonal) | 분산 E/E 아키텍처 | NPU → AP → MCU/클러스터 파이프라인 |
+분석으로 끝내지 않고 **다른 사람이 실행할 수 있는 형태**까지 만듭니다.
+측정과 판정을 웹 대시보드·데스크톱 GUI·CLI·보드 바이너리로 감싸, 코드를 모르는 사람도
+데이터를 넣으면 결과를 받도록 하는 것이 목표입니다.
+
+| 프로젝트 | 영역 | 사용자가 받는 것 | 핵심 지표 |
+|---|---|---|---|
+| [Plasma Etch Virtual Metrology](https://github.com/dw7566/plasma-etch-virtual-metrology) | 가상계측 · 임베디드 | 재현 가능한 분석 파이프라인 + 보드 실행 바이너리 | LOLO R² 0.855 · 실계측 76.1% 생략 · 미검출 0/67 |
+| [WaferSense](https://github.com/dw7566/wafersense) | 계측 신뢰성 · 공정능력 | 웹 GUI · 데스크톱 GUI · CLI · Windows 실행파일 | 무효 12건 자동 격리 · 주입 검증 오탐·미탐 0 |
+| Apache6 Benchmark Dashboard <sub>(비공개)</sub> | NPU 추론 · 벤치마크 | 웹 대시보드 4개 탭 (27 REST API) | NPU 추론 1.4 ms · 상주 런타임 20.9× |
+| [Embedded SEM Defect AI](https://github.com/dw7566/embedded-sem-defect-ai) | 엣지 AI · 결함 검사 | 보드 실시간 화면 오버레이 + C API | 분류+분할 단일 추론 · GPU 171.9 ms |
+| [picqa](https://github.com/dw7566/picqa) | 실리콘 포토닉스 분석 | Python 라이브러리 + CLI | 709 XML을 명령 한 번으로 · 테스트 47건 · CI |
+| [xml_analyzer_project](https://github.com/dw7566/xml_analyzer_project) | 실리콘 포토닉스 분석 | 데스크톱 GUI | MZI·IV 자동 피팅 · Excel 리포트 자동 생성 |
+| [Zonal Architecture Kit](https://github.com/dw7566/zonal) | 분산 E/E 아키텍처 | 클러스터 UI + MCU 펌웨어 | NPU → AP → MCU/클러스터 파이프라인 |
 
 ---
 
