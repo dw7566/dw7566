@@ -126,6 +126,42 @@
   - C 586줄 ARM64 이식, PC 대비 오차 **1.0×10⁻⁵ µm**, 누적 샘플 88/88 일치
   - OES 3,648채널에서 543–562 nm 대역 감소를 **4개 lot 전부 재현** (p<0.02)
 
+- **[WaferSense >> https://github.com/dw7566/wafersense](https://github.com/dw7566/wafersense)** <br/>
+| `Python` `Cpk` `Streamlit` `Tkinter` `LLM` `pytest` `PyInstaller` <br/>
+
+  ### ▶ 시연 영상 (71초) — 이미지를 클릭하면 재생됩니다
+  <a href="https://github.com/dw7566/dw7566/blob/main/assets/wafersense/wafersense_demo.mp4">
+    <img width="640" height="auto" alt="WaferSense 판별 결과" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/wafersense/verdict_summary.png" /> <br/>
+  </a>
+
+  > **계측 데이터 분석의 첫 번째 병목은 값을 읽는 일이 아니라, 어떤 측정을 믿을 수 있는지 가려내는 일이다.**
+
+  프로브 접촉 불량이나 장비 오작동으로 생긴 **무효 측정이 통계에 섞이면 공정 판단 자체가 오염**됩니다.
+  WaferSense는 계측 XML을 넣으면 무효 측정을 자동 격리하고, 규격 대비 산포로 공정능력을 평가한 뒤,
+  자연어 리포트까지 생성합니다.
+
+  - **3등급 신뢰성 판별** — 모든 측정에 `PASS` / `SUSPECT` / `DEAD` 등급과 **사유**를 기록합니다. 데이터를 삭제하지 않으므로 **필터링 자체가 감사 가능**합니다.
+  - **공정능력 지표** — 웨이퍼 × 밴드별 NU · CV · **Cpk** 를 산출해, 규격 안에 있지만 산포가 확대되는 **열화 신호**를 포착합니다. 가장 취약한 항목을 자동으로 지목합니다.
+  - **웨이퍼맵** — 다이 위치별 분포를 지표별로 확인하고, 무효 판정 사유를 세션 단위로 집계합니다.
+  - **다중 LLM 리포트** — Anthropic · Gemini · OpenAI · OpenRouter 키를 접두사로 자동 인식하고, 모델이 사용 중단(404)되면 다음 세대로 자동 재시도합니다.
+  - **세 가지 실행 방식** — CLI · 데스크톱 GUI(Tkinter) · 웹 GUI(Streamlit) + Windows `.exe` 빌드.
+
+  | 웨이퍼맵 — 다이 위치별 분포 | **검증 — 정답을 아는 데이터로 시험** |
+  |---|---|
+  | <img alt="wafermap" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/wafersense/wafermap.png" /> | <img alt="validation" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/wafersense/validation.png" /> |
+
+  **검증을 설계했습니다.** 웨이퍼 4장 중 하나에 의도적으로 장비 문제를 주입하고 판별기를 돌렸습니다.
+
+  | 웨이퍼 | 주입한 상태 | 판정 결과 | |
+  |---|---|---|---|
+  | W01 | 정상 | 전건 PASS | ✅ |
+  | W02 | 정상 (산포 약간 큼) | 전건 PASS | ✅ |
+  | W03 | 변조 효율 열화 — **공정 이상** | PASS, **Cpk 0.28 지목** | ✅ |
+  | W04 | 프로브 접촉 실패 — **장비 문제** | 해당 세션 **12건 DEAD** | ✅ |
+
+  **주입한 12건만 정확히 검출 — 오탐 0건, 미탐 0건.** 나아가 **장비 문제(W04)와 공정 이상(W03)을 구분**해 냈습니다.
+  단위 테스트는 **115건** 통과합니다.
+
 - **Apache6 AI Model Benchmark Dashboard** &nbsp;`🔒 비공개 저장소 — 요청 시 공유` <br/>
 | `Python` `FastAPI` `C++` `aiWare NPU` `YOLO11` `ONNX` `INT8 PTQ` `TCP` <br/>
 
@@ -138,13 +174,8 @@
 
   <img width="640" height="auto" alt="실시간 검출 대시보드" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_full_coco.png" />
 
-  <sub>실시간 영상 탭 — NPU 추론시간 1.68 ms · NPU 온도 50.2 °C · 메모리 718 MB 전부 **실측**</sub>
-
-  | 실시간 검출 (BDD 6클래스) | 벤치마크 탭 |
-  |---|---|
-  | <img alt="BDD live" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/live_bbox_bdd.png" /> | <img alt="benchmark" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_benchmark.png" /> |
-  | **결과 탭** — mAP50 · Confusion Matrix | **설정 탭** |
-  | <img alt="result" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_result.png" /> | <img alt="settings" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_settings.png" /> |
+  <sub>실시간 영상 탭 — NPU 추론시간 1.68 ms · NPU 온도 50.2 °C · 메모리 718 MB 전부 **실측**.
+  이 외 벤치마크 · 결과(mAP50 · Confusion Matrix) · 설정 탭으로 구성됩니다.</sub>
 
   **측정으로 얻은 결과**
 
@@ -171,13 +202,6 @@
   - 6종 결함 분류 + 픽셀 단위 분할을 **한 번의 추론**으로 동시 수행
   - NextChip APACHE6 Mali GPU · TFLite GPU 델리게이트 · CPU 자동 폴백
   - 카메라 프레임 → 결함 종류 · 면적 비율 · PASS/FAIL 판정, plain C API로 노출
-
-- **[WaferSense >> https://github.com/dw7566/wafersense](https://github.com/dw7566/wafersense)** <br/>
-| `Python` `Cpk` `Streamlit` `Tkinter` `LLM` `pytest` <br/>
-  - 웨이퍼 계측 데이터 **신뢰성 판별 + 공정능력 자동 분석** 시스템
-  - 무효 측정(dead run)을 `PASS`/`SUSPECT`/`DEAD` 3등급으로 판별 — **데이터를 삭제하지 않아 필터링 자체가 감사 가능**
-  - 웨이퍼 × 밴드별 NU/CV/Cpk 산출로 규격 내 산포 확대(열화) 신호 포착
-  - CLI · 데스크톱 GUI · 웹 GUI 세 경로 + Windows `.exe` 빌드, **테스트 115건**
 
 - **[picqa — Photonic IC Quality Analyzer >> https://github.com/dw7566/picqa](https://github.com/dw7566/picqa)** <br/>
 | `Python` `Silicon Photonics` `CI` `CLI` `Curve Fitting` <br/>
