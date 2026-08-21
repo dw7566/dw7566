@@ -58,6 +58,9 @@
 - **ARM64 크로스컴파일**(Cortex-A65AE), 타깃별 최적화 플래그 비교 경험이 있습니다.
 - **수치 안정성** — float32 파괴적 상쇄를 발견하고 표준화 형태 + double 누적으로 오차를 0.0486 µm → 9.9×10⁻⁶ µm로 줄인 경험이 있습니다.
 - **TensorFlow Lite GPU 델리게이트**로 Mali GPU 추론 파이프라인을 구성하고 CPU 폴백을 구현했습니다.
+- **aiWare NPU** 워크플로 전체를 다룹니다 — YOLO 학습 → ONNX Export → **INT8 PTQ 양자화** → NPU 컴파일(aiwbin) → 실보드 mAP 평가.
+- **추론 런타임 최적화** — 모델 상주(serve) 구조로 프레임당 419 ms → 20.1 ms(20.9배), MJPEG 프리뷰로 전송량 1/31 절감.
+- **NPU 제약을 고려한 모델 설계** — dilation·window 한계 안에서 동작하는 커스텀 어텐션 블록(LKA)을 Ultralytics에 이식했습니다.
 - **V4L2 / MIPI CSI 카메라 캡처**, **Wayland / OpenGL ES** 표시 경로를 다뤘습니다.
 - **FreeRTOS · CAN** 기반 Zone 컨트롤러와 Qt/QML 클러스터를 연동한 경험이 있습니다.
 
@@ -122,6 +125,42 @@
   - LOLO R² 0.855 · **실계측 76.1% 생략, 규격이탈 미검출 0/67** (95% 상한 5.4%)
   - C 586줄 ARM64 이식, PC 대비 오차 **1.0×10⁻⁵ µm**, 누적 샘플 88/88 일치
   - OES 3,648채널에서 543–562 nm 대역 감소를 **4개 lot 전부 재현** (p<0.02)
+
+- **Apache6 AI Model Benchmark Dashboard** &nbsp;`🔒 비공개 저장소 — 요청 시 공유` <br/>
+| `Python` `FastAPI` `C++` `aiWare NPU` `YOLO11` `ONNX` `INT8 PTQ` `TCP` <br/>
+
+  ### ▶ 데모 영상 (25초) — 이미지를 클릭하면 재생됩니다
+  <a href="https://github.com/dw7566/dw7566/blob/main/assets/apache6/dashboard_menu_tour_30s.mp4">
+    <img width="640" height="auto" alt="Apache6 Dashboard 데모 영상" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/tour_thumbnail.png" /> <br/>
+  </a>
+
+  Apache6(aiWare NPU) 보드에서 **YOLO 계열 모델을 실시간 구동·평가·비교하는 벤치마크 대시보드**와, 그 모델을 만드는 **YOLO11 + LKA 학습 → ONNX Export → NPU 컴파일 파이프라인**.
+
+  <img width="640" height="auto" alt="실시간 검출 대시보드" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_full_coco.png" />
+
+  <sub>실시간 영상 탭 — NPU 추론시간 1.68 ms · NPU 온도 50.2 °C · 메모리 718 MB 전부 **실측**</sub>
+
+  | 실시간 검출 (BDD 6클래스) | 벤치마크 탭 |
+  |---|---|
+  | <img alt="BDD live" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/live_bbox_bdd.png" /> | <img alt="benchmark" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_benchmark.png" /> |
+  | **결과 탭** — mAP50 · Confusion Matrix | **설정 탭** |
+  | <img alt="result" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_result.png" /> | <img alt="settings" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_settings.png" /> |
+
+  **측정으로 얻은 결과**
+
+  | 항목 | 값 |
+  |---|---|
+  | NPU 순수 추론 (v8n_nc6_bdd 640×384) | **1.4 ms** |
+  | 상주 런타임 도입 효과 | 프레임당 419 ms → 20.1 ms (**20.9배**) |
+  | 프리뷰 전송량 | raw 230 KB → MJPEG 7.2 KB/frame (**1/31**) |
+  | 검출 시간축 | 벽시계 고정 — **드리프트 0**, bbox 누적 지연 없음 |
+  | GT 자기일치 검증 | recall 1.0 / mean IoU 0.9999 (파이프라인 결정론 확인) |
+
+  - **아키텍처** — VM의 FastAPI 대시보드(27개 REST API) ↔ TCP 9000 JSON 라인 프로토콜 ↔ 보드 에이전트(Python) + `infer_frame`(C++, aiWare SDK 상주 추론)
+  - **실시간성 설계** — 프리뷰는 `-re` 페이싱 MJPEG, 검출은 **drop-to-latest** 로 최신 프레임만 추론해 박스가 과거로 밀리지 않게 함
+  - **커스텀 모델** — Ultralytics 8.3.240 포크에 `LKA` / `C2PSA_LKA` 블록 추가. 3×3 DW(d=1→2→3→4) → 1×1 PW 로 receptive field를 넓히되 **NPU 제약(max_dilation=5, max_window=17) 안에서** 동작하도록 설계
+  - **정확도 분석** — BDD val 10k 대상 INT8 PTQ 캘리브레이션 비교(주간 전용 vs 혼합), 주야 도메인별·객체 크기별 성능 분석
+  - 실보드 없이 도는 **테스트 스위트 17개**, 보드 미연결 시 결정론적 시뮬레이션으로 단독 기동
 
 - **[Embedded SEM Defect AI >> https://github.com/dw7566/embedded-sem-defect-ai](https://github.com/dw7566/embedded-sem-defect-ai)** <br/>
 | `C++` `TensorFlow Lite` `U-Net` `Mali GPU` `V4L2` `OpenGL ES` `APACHE6` <br/>
