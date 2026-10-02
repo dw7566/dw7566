@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="380" viewBox="0 0 880 380" font-family="'Pretendard','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif">
+  <rect width="880" height="380" fill="#111111"/>
+  <text x="48" y="56" fill="#9a9a9a" font-size="13" letter-spacing="3">PORTFOLIO 2026</text>
+  <text x="832" y="56" fill="#9a9a9a" font-size="13" text-anchor="end">공정 · 계측 데이터 분석</text>
+  <rect x="48" y="112" width="56" height="6" fill="#D7192A"/>
+  <text x="48" y="172" fill="#ffffff" font-size="44" font-weight="700">AI로 풀고, 직접 검증합니다.</text>
+  <text x="48" y="208" fill="#cfcfcf" font-size="16">반도체 측정 데이터 분석 · 판단은 직접, 반복 작업은 AI에 맡깁니다</text>
+  <rect x="0" y="252" width="880" height="128" fill="#ffffff"/>
+  <g font-size="12" fill="#666666">
+    <rect x="48"  y="266" width="240" height="2" fill="#111111"/>
+    <rect x="320" y="266" width="240" height="2" fill="#111111"/>
+    <rect x="592" y="266" width="240" height="2" fill="#111111"/>
+    <text x="48"  y="290">웨이퍼 측정</text>
+    <text x="320" y="290">카메라 AI</text>
+    <text x="592" y="290">측정 데이터 분석</text>
+  </g>
+  <g font-size="24" font-weight="700" fill="#D7192A">
+    <text x="48"  y="324">실계측 76% 생략</text>
+    <text x="320" y="324">추론 20.9배 단축</text>
+    <text x="592" y="324">709개 XML 자동 분석</text>
+  </g>
+  <g font-size="13" fill="#111111">
+    <text x="48"  y="348">규격이탈 미검출 0 / 67</text>
+    <text x="320" y="348">프레임당 419 ms → 20.1 ms</text>
+    <text x="592" y="348">명령 한 번으로 처리</text>
+  </g>
+</svg>

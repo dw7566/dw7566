@@ -1,242 +1,230 @@
+<img width="880" alt="이재혁 포트폴리오 2026" src="assets/header.svg" />
+
 # 이재혁 · Jaehyeok Lee
 
-AI를 도구로 써서 **가치 있는 것을 만들고, 귀찮은 일을 없애고, 느린 것을 빠르게** 합니다.
-손으로 열 수 없던 계측 XML 709개를 명령 한 번으로 처리하고, 엣지 추론을 프레임당
-419 ms에서 20.1 ms로 줄이고, 불확실성 기반 판정으로 실계측 76.1%를 생략하게 만든
-작업들이 그 결과입니다.
+반도체 공정·계측 데이터를 분석합니다. 물리 모델과 검증 기준은 직접 세우고, 반복 구현은 AI에 맡깁니다.
 
-도메인은 가리지 않습니다. 반도체 공정·계측을 가장 깊게 다루지만 실리콘 포토닉스,
-디스플레이 공정, 엣지 AI·NPU, 차량 E/E 아키텍처까지 필요한 곳이면 들어갑니다.
-그중 오래 파고든 주제는 계측 데이터의 **판정 기준**입니다 — 값을 예측하는 데서 끝내지 않고
-불확실성을 함께 산출해 "실계측을 생략해도 되는가"까지 답하고 검증합니다.
-
-한양대학교 ERICA 차세대반도체융합공학부 반도체디스플레이전공 · 팹리스점프업 2기
-dw7566@hanyang.ac.kr
+한양대학교 ERICA 차세대반도체융합공학부 반도체디스플레이전공 3학년 · 팹리스 점프업 2기
+dw647768@gmail.com · [포트폴리오 PDF](assets/portfolio/portfolio_2026.pdf)
 
 ---
 
-## 작업 방식 — 도메인을 깔고, 출력을 검증한다
+## 작업 방식
 
-> AI를 활용한다는 것은 답을 시키는 일이 아니라, 기본 도메인을 정확히 깔아 주어 그 위에서 일하게 하는 일이다.
->
-> — 「정답을 받는 대신, 도메인을 먼저 깔았다」 · 2026 ERICA人 AI 학습 활용 사례 공모전 최우수상
+처음에는 AI에 곡선을 맞춰 달라고만 했고, 세 번 실패했습니다. 그 뒤로는 아래 순서로 작업합니다.
 
-실리콘 포토닉스 웨이퍼 측정 데이터 709개 XML(4 웨이퍼 × 14 다이 × 13 사이트, 484.8 MB)을
-분석하는 IC-PBL 과제에서 정립한 원칙입니다. 문제 정의·설계 판단·검증은 직접 수행하고,
-반복 구현과 리팩터링은 위임합니다.
-
-세 번의 실패가 기준을 만들었습니다.
-
-| 상황 | 결과 |
+| 순서 | 하는 일 |
 |---|---|
-| "이 데이터로 그래프를 그려 줘" | 곡선은 그럴듯했으나 물리적 의미가 실측과 달랐다. 간섭 투과 곡선의 식과 축의 물리량을 먼저 정의한 뒤에야 분석 가능한 출력이 나왔다 |
-| 배경 제거 보정 제안을 수용 | 분석 대상인 핵심 특징까지 함께 제거됐다 |
-| 곡선 피팅 초기값을 고정 | R²가 0에 가깝게 무너졌다. 데이터에서 초기값을 탐색하도록 바꾸자 0.95 |
+| 1. 모델을 먼저 세운다 | 식, 축의 물리량, 규격을 정한 뒤 코드를 요청합니다. MZI 간섭 모델과 다이오드 방정식이 출발점이었습니다 |
+| 2. 결과가 그럴듯해도 검증한다 | 음성 대조군, 정답을 아는 데이터에 이상을 넣는 시험, 신뢰구간으로 결론을 확인합니다 |
+| 3. 실행되는 형태로 남긴다 | CLI, GUI, 실행파일, C 이식까지 만들고 테스트와 CI로 결과를 고정합니다 |
 
-출력이 그럴듯할수록 검증이 필요하다는 결론이고, 저장소마다 그 흔적을 남깁니다.
-
-| 원칙 | 구현된 증거 |
+| 직접 하는 일 | AI에 맡기는 일 |
 |---|---|
-| 변하지 않아야 할 것이 변하지 않았음을 보인다 | `plasma-etch` — 챔버 압력 88장 전체 표준편차 0.0000 (음성 대조군) |
-| 정답을 아는 데이터로 시험한다 | `WaferSense` — 이상 주입 검증에서 오탐 0건·미탐 0건 |
-| 재현 가능한 형태로 남긴다 | 외부 데이터 없이 도는 테스트 115 · 47 · 27 · 17건 |
-| 비율에는 신뢰구간을 병기한다 | 미검출 0/67을 "0%"가 아니라 "95% 상한 5.4%"로 기술 |
+| 문제 정의, 물리 모델 수립, 검증 기준 설계, 결과 해석 | 정형화된 코드, UI와 그래프 골격, 예외 처리, 리팩터링 |
+
+사용한 도구: Gemini, ChatGPT, Claude, GitHub Copilot
 
 ---
 
-## Selected Work
+## 프로젝트
 
-분석으로 끝내지 않고 **다른 사람이 실행할 수 있는 형태**까지 만듭니다.
-측정과 판정을 웹 대시보드·데스크톱 GUI·CLI·보드 바이너리로 감싸, 코드를 모르는 사람도
-데이터를 넣으면 결과를 받도록 하는 것이 목표입니다.
-
-| 프로젝트 | 영역 | 사용자가 받는 것 | 핵심 지표 |
+| 프로젝트 | 분야 | 결과물 | 주요 수치 |
 |---|---|---|---|
-| [Plasma Etch Virtual Metrology](https://github.com/dw7566/plasma-etch-virtual-metrology) | 가상계측 · 임베디드 | 재현 가능한 분석 파이프라인 + 보드 실행 바이너리 | LOLO R² 0.855 · 실계측 76.1% 생략 · 미검출 0/67 |
-| [WaferSense](https://github.com/dw7566/wafersense) | 계측 신뢰성 · 공정능력 | 웹 GUI · 데스크톱 GUI · CLI · Windows 실행파일 | 무효 12건 자동 격리 · 주입 검증 오탐·미탐 0 |
-| Apache6 Benchmark Dashboard <sub>(비공개)</sub> | NPU 추론 · 벤치마크 | 웹 대시보드 4개 탭 (27 REST API) | NPU 추론 1.4 ms · 상주 런타임 20.9× |
-| [Embedded SEM Defect AI](https://github.com/dw7566/embedded-sem-defect-ai) | 엣지 AI · 결함 검사 | 보드 실시간 화면 오버레이 + C API | 분류+분할 단일 추론 · GPU 171.9 ms |
-| [picqa](https://github.com/dw7566/picqa) | 실리콘 포토닉스 분석 | Python 라이브러리 + CLI | 709 XML을 명령 한 번으로 · 테스트 47건 · CI |
-| [xml_analyzer_project](https://github.com/dw7566/xml_analyzer_project) | 실리콘 포토닉스 분석 | 데스크톱 GUI | MZI·IV 자동 피팅 · Excel 리포트 자동 생성 |
-| [Zonal Architecture Kit](https://github.com/dw7566/zonal) | 분산 E/E 아키텍처 | 클러스터 UI + MCU 펌웨어 | NPU → AP → MCU/클러스터 파이프라인 |
+| [Plasma Etch Virtual Metrology](https://github.com/dw7566/plasma-etch-virtual-metrology) | 가상계측, 임베디드 | 분석 파이프라인, ARM64 보드 바이너리 | LOLO R² 0.855, 실계측 76.1% 생략, 미검출 0/67 |
+| [WaferSense](https://github.com/dw7566/wafersense) | 계측 신뢰성, 공정능력 | 웹·데스크톱 GUI, CLI, Windows 실행파일 | 주입 이상 12/12 검출, 오탐·미탐 0 |
+| [picqa](https://github.com/dw7566/picqa) | 실리콘 포토닉스 분석 | Python 라이브러리, CLI | XML 709개 일괄 처리, 테스트 47건 |
+| [xml_analyzer_project](https://github.com/dw7566/xml_analyzer_project) | 실리콘 포토닉스 분석 | 데스크톱 GUI | MZI·IV 자동 피팅, Excel 리포트 |
+| [Zonal Architecture Kit](https://github.com/dw7566/zonal) | Zonal E/E, ADAS | 클러스터 UI, MCU 펌웨어 | NPU, AP, MCU, 클러스터 연동 |
+| Apache6 Benchmark Dashboard (비공개) | NPU 추론, 벤치마크 | 웹 대시보드, REST API 27개 | 프레임당 419 ms에서 20.1 ms |
+| [Embedded SEM Defect AI](https://github.com/dw7566/embedded-sem-defect-ai) | 엣지 AI, 결함 검사 | 보드 실시간 오버레이, C API | 분류와 분할을 추론 한 번에 |
 
 ---
 
 ### Plasma Etch Virtual Metrology
 
 [`plasma-etch-virtual-metrology`](https://github.com/dw7566/plasma-etch-virtual-metrology) ·
-Python · C · scikit-learn · ARM64 · System V IPC
+Python, C, scikit-learn, ARM64, System V IPC ·
+팹리스 점프업 2기 부가 과제, 2026.07~08
 
 <img width="560" alt="식각 깊이 드리프트" src="https://raw.githubusercontent.com/dw7566/plasma-etch-virtual-metrology/main/figs/fig1_drift.png" />
 
-BOSCH 식각 공정의 챔버 드리프트를 인과까지 규명하고, 센서 3개로 공정 시작 4.8초 시점에
-식각 깊이를 예측하는 판정기를 임베디드 보드에 실장했습니다.
-원저자가 inconclusive로 남긴 문제를 분석 대상으로 삼았습니다.
+공개 BOSCH 플라즈마 식각 데이터(88장, 10 lot)에서 연속 공정 중 식각 깊이가 줄어드는데,
+원 데이터셋 저자는 원인을 결론 내지 못했습니다. 이 드리프트의 원인을 찾고, 식각 깊이를
+실계측 없이 판정하는 모델을 만들어 보드에 올렸습니다.
 
-- 드리프트 −0.119 µm/wafer, 10개 lot 전부 단조 감소 (p = 4.5×10⁻¹⁹)
-- 원인은 RF 정합 특성 변화. 압력·설정파워는 변화 0.000으로 음성 대조군 성립
-- 5 특징셋 × 13 모델 = 65조합을 Leave-One-Lot-Out으로 전수 비교
-- 불확실성 기반 3분기 판정으로 실계측 76.1% 생략, 규격이탈 미검출 0/67 (95% 상한 5.4%)
-- C 586줄로 ARM64 이식 — PC 대비 오차 1.0×10⁻⁵ µm, 누적 샘플 88/88 일치
-- OES 3,648채널에서 543–562 nm 대역 감소를 4개 lot 전부 재현 (p < 0.02)
+원인 찾기
+- 웨이퍼당 −0.119 µm 드리프트. 10개 lot 모두 단조 감소 (R² 0.606, p = 4.5×10⁻¹⁹)
+- 플라즈마 ON 구간 상관분석으로 RF 정합 변화를 원인으로 지목. 챔버 압력과 설정 파워는 88장 내내 변화 없음(σ = 0.000)을 음성 대조군으로 사용
+- 전기 신호로 낸 결론을 광학으로 다시 확인. OES 3,648채널 중 543~562 nm 대역이 4개 lot 모두 감소 (ρ −0.73 ~ −0.83, p < 0.02)
 
-가설을 세 번 기각한 과정과 검증 불가능한 항목을 문서에 그대로 남겼습니다.
+판정기 만들기
+- 특징셋 5개 × 모델 13개, 65개 조합을 lot 단위 교차검증으로 전부 비교 (R² 0.855)
+- 예측값과 함께 불확실성(σ)을 계산해 통과, 조기중단, 실계측 요청 세 가지로 판정
+- 신뢰 배수 k = 1.0에서 실계측 76.1% 생략, 규격이탈 미검출 0/67. 표본이 67건이라 0%로 쓰지 않고 Wilson 95% 상한 5.4%로 표기
+
+<img width="480" alt="신뢰 배수에 따른 생략률과 미검출" src="assets/plasma/skip_rate.png" />
+
+보드 이식
+- 판정기를 C로 옮겨 Cortex-A65AE 보드에서 실행. PC 대비 오차 1.0×10⁻⁵ µm, 88건 모두 일치
+- System V IPC로 여러 챔버 동시 처리를 시험. 물리 코어 4개에서 속도 향상이 3.8배로 포화되는 것까지 측정
+
+남은 한계: 공개 데이터 88장이라 lot 단위 주장은 검정력이 부족합니다. OES 대역의 화학종은
+아직 문헌 스펙트럼과 대조하지 못했습니다. 양산 데이터로 다시 확인해야 할 결론입니다.
 
 ---
 
 ### WaferSense
 
 [`wafersense`](https://github.com/dw7566/wafersense) ·
-Python · Cpk · Streamlit · Tkinter · LLM · PyInstaller
+Python, Streamlit, Tkinter, LLM, PyInstaller · 개인 프로젝트, v1.9.0
 
 <a href="https://github.com/dw7566/dw7566/blob/main/assets/wafersense/wafersense_demo.mp4">
-  <img width="560" alt="판별 결과 — 시연 영상 재생" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/wafersense/verdict_summary.png" />
+  <img width="560" alt="판별 결과, 시연 영상 재생" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/wafersense/verdict_summary.png" />
 </a>
 
-<sub>▶ 이미지를 클릭하면 시연 영상(71초)이 재생됩니다.</sub>
+<sub>이미지를 누르면 시연 영상(71초)이 재생됩니다.</sub>
 
-계측 데이터 분석의 첫 병목은 값을 읽는 일이 아니라 어떤 측정을 믿을 수 있는지 가려내는
-일입니다. 프로브 접촉 불량이나 장비 오작동으로 생긴 무효 측정이 통계에 섞이면 공정 판단
-자체가 오염되기 때문입니다.
+웨이퍼 계측 데이터에서 어떤 측정을 믿을 수 있는지 먼저 가려내고, 그다음 공정능력을 봅니다.
+프로브 접촉 불량 같은 무효 측정이 통계에 섞이면 공정 판단이 틀어지기 때문입니다.
 
-- 모든 측정에 `PASS` / `SUSPECT` / `DEAD` 등급과 사유를 기록. 데이터를 삭제하지 않으므로 필터링 자체가 감사 가능
-- 웨이퍼 × 밴드별 NU · CV · Cpk 산출로 규격 내 산포 확대를 포착하고 최취약 항목을 지목
-- 다중 LLM 리포트 — 키 접두사 자동 인식, 모델 사용 중단(404) 시 다음 세대로 자동 재시도
-- CLI · 데스크톱 GUI · 웹 GUI 세 경로와 Windows 실행파일 빌드
+- 계측 XML 96건을 PASS 84, SUSPECT 0, DEAD 12로 판별하고 사유를 기록. 데이터를 지우지 않아 무엇을 걸렀는지 나중에 확인 가능
+- 웨이퍼·밴드별 NU, CV, Cpk 산출
+- 여러 LLM 키를 자동 인식해 리포트 작성. 실패하면 규칙 기반 리포트로 대체
+- CLI, 데스크톱, 웹, Windows 실행파일 네 가지로 실행. 테스트 115건
 
-**검증 설계.** 웨이퍼 4장 중 하나에 의도적으로 장비 문제를 주입하고 판별기를 돌렸습니다.
+검증: 정답을 아는 합성 데이터에 일부러 이상을 넣고 판별기를 돌렸습니다.
 
-<img width="560" alt="정답 주입 검증 결과" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/wafersense/validation.png" />
+<img width="560" alt="이상 주입 검증 결과" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/wafersense/validation.png" />
 
-| 웨이퍼 | 주입한 상태 | 판정 |
+| 웨이퍼 | 넣은 상태 | 판정 |
 |---|---|---|
 | W01 | 정상 | 전건 PASS |
 | W02 | 정상 (산포 약간 큼) | 전건 PASS |
-| W03 | 변조 효율 열화 — 공정 이상 | PASS, Cpk 0.28 지목 |
-| W04 | 프로브 접촉 실패 — 장비 문제 | 해당 세션 12건 DEAD |
+| W03 | 변조 효율 열화 (공정 이상) | PASS, Cpk 0.28로 따로 지목 |
+| W04 | 프로브 접촉 실패 (장비 문제) | 해당 세션 12건 DEAD |
 
-주입한 12건만 정확히 검출했고 오탐·미탐이 없었으며, 장비 문제와 공정 이상을 구분했습니다.
-단위 테스트 115건이 통과합니다.
+넣은 장비 이상 12건을 모두 잡았고 오탐과 미탐은 없었습니다. 장비 원인(W04)과 공정 이상(W03)도 구분했습니다.
 
 ---
 
-### Apache6 AI Model Benchmark Dashboard
+### picqa / XML Analyzer
 
-비공개 저장소 (요청 시 공유) ·
-Python · FastAPI · C++ · aiWare NPU · YOLO11 · ONNX · INT8 PTQ
+[`picqa`](https://github.com/dw7566/picqa) · [`xml_analyzer_project`](https://github.com/dw7566/xml_analyzer_project) ·
+Python, CLI, CI · 2026 ERICA人 AI 학습 활용 사례 공모전 최우수상
+
+실리콘 포토닉스 웨이퍼 측정 XML(4 웨이퍼 × 14 다이 × 13 사이트, 709개)을 파일마다 손으로
+피팅하다 보니 느렸고, 같은 데이터도 사람마다 결과가 달랐습니다. 처음 만든 GUI 도구가
+xml_analyzer_project이고, 교수님 피드백을 받아 코드로 불러 쓰고 검증할 수 있게 다시 설계한
+것이 picqa입니다.
+
+AI 활용 원칙은 이 과제에서 정했습니다.
+
+| 시도 | AI에 맡긴 것 | 결과와 바꾼 점 |
+|---|---|---|
+| 1 | "곡선을 맞춰 줘" | 그래프는 그럴듯했지만 물리적 의미가 실측과 달랐습니다. 식과 축의 물리량을 먼저 정했습니다 |
+| 2 | 배경 제거 보정 제안 | 분석해야 할 특징까지 지워졌습니다. 보정 결과를 원 신호와 대조하게 했습니다 |
+| 3 | 고정 초기값 피팅 | R²가 0 가까이 떨어졌습니다. 초기값을 데이터에서 찾게 바꾸자 R² 0.95로 돌아왔습니다 |
+
+- XML 709개를 명령 한 번으로 처리. 폴더 구조와 O/E/S/C/L/U 밴드 자동 판별
+- 추출 항목: FSR, |dλ/dV|, Peak IL, ER, Vπ·L, 누설전류, 다이오드 방정식 기반 ±1.0 V 전류와 기생 저항
+- PN 길이(500 / 1500 / 2500 µm) 선형 피팅으로 µm당 도핑 손실 산출
+- 테스트 47건과 CI로 같은 입력에 같은 결과가 나오도록 고정. GUI 버전은 날짜별 Excel 리포트 생성
+
+---
+
+### Zonal ADAS와 NPU 추론
+
+[`zonal`](https://github.com/dw7566/zonal) · C, C++, Python, FreeRTOS, CAN, Qt/QML ·
+팹리스 점프업 일경험 프로그램 2기, 텔레칩스·넥스트칩 과제
+
+<img width="560" alt="클러스터 대시보드" src="https://raw.githubusercontent.com/dw7566/zonal/main/docs/dashboard_screenshot.png" />
+
+축소 차량으로 Zonal E/E 구조를 재현했습니다. 카메라(MIPI CSI) 영상을 AI 보드가 NPU로
+검출하고, AP 브리지가 TCP와 IPC로 나눠 보내며, Zone 컨트롤러(FreeRTOS)가 모터·조향·조명·CAN을,
+클러스터(Qt/QML)가 3D BEV와 ADAS 경고를 맡습니다. 화면용과 제어용 호모그래피를 따로 두어
+보기 좋은 시점과 제어에 필요한 정확한 좌표를 각각 계산했습니다.
+
+Python, C, C++, QML이 섞인 코드는 생성형 AI로 구현 속도를 높였고, 구조 설계와 보드 위 동작 확인은 직접 했습니다.
+
+#### Apache6 Benchmark Dashboard (비공개, 요청 시 공유)
+
+Python, FastAPI, C++, aiWare NPU, YOLO11, ONNX, INT8 PTQ
 
 <a href="https://github.com/dw7566/dw7566/blob/main/assets/apache6/dashboard_menu_tour_30s.mp4">
   <img width="560" alt="대시보드 데모 영상" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/tour_thumbnail.png" />
 </a>
 
-<sub>▶ 이미지를 클릭하면 데모 영상(25초)이 재생됩니다.</sub>
+<sub>이미지를 누르면 데모 영상(25초)이 재생됩니다.</sub>
 
-Apache6(aiWare NPU) 보드에서 YOLO 계열 모델을 실시간 구동·평가·비교하는 벤치마크
-대시보드와, 그 모델을 만드는 학습 → ONNX Export → NPU 컴파일 파이프라인입니다.
+Apache6(aiWare NPU) 보드에서 YOLO 모델을 실시간으로 돌리고 비교하는 대시보드입니다.
+순수 추론은 1.4 ms인데 프레임당 419 ms가 걸렸습니다. 구간별 시간을 재 보니 매 프레임
+모델을 다시 올리는 구조가 병목이어서, 모델을 한 번만 올리는 C++ 상주 런타임으로 바꿔
+20.1 ms(20.9배 단축)로 줄였습니다.
 
 <img width="560" alt="실시간 검출 화면" src="https://raw.githubusercontent.com/dw7566/dw7566/main/assets/apache6/dashboard_full_coco.png" />
 
-<sub>실시간 영상 탭. NPU 추론시간·온도·메모리는 모두 실측값입니다.</sub>
+- FastAPI 대시보드(REST API 27개), TCP JSON 프로토콜, 보드 에이전트 구성
+- 프리뷰 전송량 230 KB에서 7.2 KB/frame으로 축소
+- NPU 제약(max_dilation 5, max_window 17) 안에서 LKA 블록을 이식해 receptive field 확장
+- BDD val 10k로 INT8 PTQ 캘리브레이션 비교, 주야·객체 크기별 정확도 분석
+- 보드 없이 도는 테스트 17건
 
-- VM의 FastAPI 대시보드(27 REST API) ↔ TCP JSON 라인 프로토콜 ↔ 보드 에이전트 + C++ 상주 추론
-- 상주(serve) 런타임 전환으로 프레임당 419 ms → 20.1 ms (20.9배)
-- `-re` 페이싱 MJPEG 프리뷰로 전송량 1/31, drop-to-latest로 검출 시간축 드리프트 0
-- Ultralytics에 LKA / C2PSA_LKA 블록 이식 — NPU 제약(max_dilation 5, max_window 17) 안에서 receptive field 확장
-- BDD val 10k 대상 INT8 PTQ 캘리브레이션 비교, 주야 도메인·객체 크기별 정확도 분석
-- GT 자기일치 검증 recall 1.0 / mean IoU 0.9999, 실보드 없이 도는 테스트 17개
-
----
-
-### Embedded SEM Defect AI
+#### Embedded SEM Defect AI
 
 [`embedded-sem-defect-ai`](https://github.com/dw7566/embedded-sem-defect-ai) ·
-C++ · TensorFlow Lite · U-Net · Mali GPU · V4L2 · OpenGL ES
+C++, TensorFlow Lite, U-Net, Mali GPU, V4L2, OpenGL ES
 
 <img width="560" alt="GPU 실시간 데모" src="https://raw.githubusercontent.com/dw7566/embedded-sem-defect-ai/main/docs/images/demo-gpu-overlay.png" />
 
-SEM 웨이퍼 결함 검사를 위한 멀티태스크 U-Net 추론 엔진입니다. 6종 결함 분류와 픽셀 단위
-분할을 한 번의 추론으로 동시에 수행해 카메라 프레임에서 결함 종류·면적 비율·PASS/FAIL을
-산출합니다. NextChip APACHE6의 Mali GPU에서 TFLite GPU 델리게이트로 구동하며 CPU
-폴백을 갖추고, C 카메라 루프에 임베드할 수 있도록 plain C API로 노출했습니다.
+SEM 결함 6종 분류와 픽셀 단위 분할을 추론 한 번으로 처리하는 멀티태스크 U-Net입니다.
+카메라 프레임에서 결함 종류, 면적 비율, PASS/FAIL을 내고, Mali GPU 델리게이트와 CPU 폴백을
+지원합니다. C 카메라 루프에 붙일 수 있게 C API로 제공합니다.
 
 ---
 
-### picqa — Photonic IC Quality Analyzer
+### Oxide TFT 공정 실습
 
-[`picqa`](https://github.com/dw7566/picqa) · Python · CLI · CI
+한양대학교 ERICA 디스플레이 부트캠프, 2026.06.24~06.30 · Oxide TFT(Bottom Gate) 전 공정
 
-실리콘 포토닉스 웨이퍼 측정 데이터를 분석하는 모듈식 라이브러리와 CLI입니다.
-709개 XML을 명령 한 번으로 처리합니다.
+| 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|
+| 기판 세정 | Mo 게이트 | 절연층 | 채널 | S/D 전극 |
+| Si/SiO₂ | PR 4000 rpm, 365 nm | Al₂O₃ ALD | ITZO 10 nm 스퍼터 | Mo lift-off |
 
-- 레이아웃·밴드 비의존 설계 — 폴더 구조 자동 판별, O/E/S/C/L/U 밴드 자동 인식
-- MZ 변조기 · PN 변조기 · 광검출기 · 도파로 소자별 특성 추출기
-- MZM: FSR, |dλ/dV|, Peak IL, ER / 위상 분석에서 Vπ, Vπ·L 도출
-- PN 길이 의존성(500 / 1500 / 2500 µm) 선형 피팅으로 µm당 도핑 손실 산출
+<img width="560" alt="Probe Station Output, Transfer 곡선" src="assets/tft/tft_iv.png" />
 
-[`xml_analyzer_project`](https://github.com/dw7566/xml_analyzer_project)는 같은 과제의 초기
-GUI 버전으로, 교수 피드백을 거쳐 코드로 불러 쓰고 검증할 수 있는 모듈형 라이브러리로
-재설계한 결과가 picqa입니다.
+<sub>Probe Station으로 측정한 Output 곡선(왼쪽)과 Transfer 곡선(오른쪽)</sub>
 
----
-
-### Zonal Architecture Kit
-
-[`zonal`](https://github.com/dw7566/zonal) · C · C++ · Python · FreeRTOS · CAN · Qt/QML
-
-<img width="560" alt="클러스터 대시보드" src="https://raw.githubusercontent.com/dw7566/zonal/main/docs/dashboard_screenshot.png" />
-
-하나의 SoC가 모든 것을 처리하는 대신 역할이 분리된 노드가 네트워크로 통신하는 Zonal
-아키텍처를 축소 차량으로 재현한 교육 키트입니다. AI 보드가 NPU로 추론하고, AP 브리지가
-표시용·제어용 homography를 분리해 dual-BEV로 가공하며, Zone 컨트롤러(FreeRTOS)가
-모터·조향·조명·CAN을 담당하고, 클러스터(Qt/QML)가 3D BEV와 ADAS 경고를 표시합니다.
+데이터로만 보던 공정을 직접 해 봤습니다. Mo 식각액에 따라 언더컷이 달라지는 것을 확인해 기록했고,
+충남테크노파크 현장실습에서는 OLED 팹 견학, XR CVD 장비 실습, SAICAS 박막 분석을 했습니다.
 
 ---
 
-## 기술 스택
+## 기술
 
-| 영역 | 내용 |
+| 분야 | 내용 |
 |---|---|
 | 언어 | Python, C (C99), C++ |
-| 데이터 분석 | NumPy · pandas · SciPy · scikit-learn · netCDF4 · Matplotlib |
-| 통계적 판정 | Leave-One-Lot-Out 교차검증, Gaussian Process, leverage 기반 예측 분산, Wilson 신뢰구간, Cpk / NU / CV |
-| 임베디드 | ARM64 크로스컴파일(Cortex-A65AE), System V IPC, V4L2 / MIPI CSI, Wayland / OpenGL ES, FreeRTOS, CAN |
-| 엣지 AI | TensorFlow Lite GPU 델리게이트, aiWare NPU SDK, ONNX, YOLO / Ultralytics, INT8 PTQ |
-| 애플리케이션 | FastAPI, Streamlit, Tkinter, Qt/QML, PyInstaller |
-| 공정·계측 도메인 | ICP-RIE 플라즈마 식각, Oxide TFT 공정, 실리콘 포토닉스, OES 발광분광, SEM 결함 검사 |
-| 개발 환경 | Git · GitHub Actions, pytest, 크로스 플랫폼 빌드 |
-
-수치 안정성처럼 눈에 띄지 않는 문제도 다룹니다. 예측식을 원시입력 형태로 두면 float32
-파괴적 상쇄로 0.0486 µm 오차가 생기는데, 표준화 형태와 double 누적으로 9.9×10⁻⁶ µm까지
-줄였습니다.
+| 분석 | NumPy, pandas, SciPy, scikit-learn, netCDF4, openpyxl |
+| AI, 엣지 | TensorFlow Lite (GPU 델리게이트), ONNX, YOLO, INT8 PTQ, NPU SDK |
+| 임베디드 | ARM64 크로스컴파일, System V IPC, V4L2, OpenGL ES, FreeRTOS, Qt/QML |
+| 앱, 배포 | FastAPI, Streamlit, Tkinter, PyInstaller, Git, pytest, CI |
+| 공정, 계측 | 포토리소그래피, ALD, 스퍼터 실습, Probe Station I-V, SEM, OES 데이터 분석 |
 
 ---
 
-## 이력
+## 수상, 교육, 자격
 
-| 시기 | 내용 |
-|---|---|
-| 2026.07 | **2026 ERICA人 AI 학습 활용 사례 공모전 최우수상** — 한양대학교 ERICA IC-PBL교수학습센터 |
-| 2026.08 | 디스플레이 부트캠프 — OLED 공정 및 XR 현장 실습 (충남테크노파크 혁신공정센터) |
-| 2026.06 | 디스플레이 부트캠프 — 박막트랜지스터 공정 실습 |
-| 2026.05 | 현직자 직무부트캠프 G7/GX 이수 — ㈜월드클래스에듀케이션 |
-
-### 박막트랜지스터 공정 실습
-
-Oxide TFT(Bottom Gate 구조)를 직접 제작하며 반도체 8대 공정을 실습했습니다.
-데이터로만 다루던 공정을 직접 수행한 경험이 공정 데이터를 해석하는 근거가 됩니다.
-
-| 단계 | 공정 | 재료 |
+| 구분 | 시기 | 내용 |
 |---|---|---|
-| 1 | 기판 세정 | Si / SiO₂ |
-| 2 | Gate 패터닝 | Mo |
-| 3 | Insulator 증착 (ALD) | Al₂O₃ |
-| 4 | Channel 증착 및 패터닝 | ITZO |
-| 5 | Source/Drain 패터닝 | Mo |
-
-포토리소그래피 마스크 얼라인으로 미세 구조를 형성하는 과정을 직접 수행했고,
-OLED 현장 실습에서는 검·계측 장비와 SAICAS 박막 스크래치 분석 사례를 통해
-측정 결과가 공정 평가로 이어지는 흐름을 확인했습니다.
+| 수상 | 2026.07.01 | 2026 ERICA人 AI 학습 활용 사례 공모전 최우수상 (한양대학교 ERICA IC-PBL교수학습센터) |
+| 교육 | 2026.09.21 | Developing Generative AI Applications on AWS, 2일 과정 수료 (AWS Training and Certification) |
+| 교육 | 2026.07.02~08.11 | 팹리스 점프업 일경험 프로그램 2기, 210시간 (한국팹리스산업협회). 텔레칩스 Zonal ADAS, 넥스트칩 NPU 추론 개선, BOSCH 식각 가상계측 |
+| 교육 | 2026.06.24~06.30 | 디스플레이 부트캠프 박막 트랜지스터 공정 실습 (한양대학교 ERICA), 08.06 충남테크노파크 현장실습 |
+| 교육 | 2026.05.11~05.29 | 2026-1학기 현직자 직무부트캠프 G7/GX 이수 (㈜월드클래스에듀케이션) |
+| 자격 | 2018.07 | 전기기능사 (한국산업인력공단) |
 
 ---
 
-[전체 저장소](https://github.com/dw7566?tab=repositories)
+[전체 저장소](https://github.com/dw7566?tab=repositories) · [포트폴리오 PDF](assets/portfolio/portfolio_2026.pdf)
