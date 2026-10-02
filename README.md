@@ -5,7 +5,7 @@
 반도체 공정·계측 데이터를 분석합니다. 물리 모델과 검증 기준은 직접 세우고, 반복 구현은 AI에 맡깁니다.
 
 한양대학교 ERICA 차세대반도체융합공학부 반도체디스플레이전공 3학년 · 팹리스 점프업 2기
-dw647768@gmail.com · [포트폴리오 PDF](assets/portfolio/portfolio_2026.pdf)
+dw7566@hanyang.ac.kr · [포트폴리오 PDF](assets/portfolio/portfolio_2026.pdf)
 
 ---
 
